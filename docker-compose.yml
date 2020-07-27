@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  otrs:
+    build: .
+    ports:
+      - '3100:80'
+    # If running behind a proxy container, expose the ports instead
+    # and link the proxy container to this one.
+    #  expose:
+    #  - "80"
+    depends_on:
+      - mariadb
+    env_file: .env
+    command: "/opt/otrs/run.sh"
+    volumes:
+      #- './volumes/config:/opt/otrs/Kernel'
+      # Uncomment if using OTRS_ARTICLE_STORAGE_TYPE=ArticleStorageFS
+      #- ./volumes/article:/opt/otrs/var/article
+      #- ./volumes/skins:/opt/otrs/var/httpd/htdocs/skins/
+      #- './volumes/backup:/var/otrs/backups'
+      #- './volumes/addons:/opt/otrs/addons'
+      #- ./volumes/db_upgrade:/opt/otrs/db_upgrade
+      - '/etc/localtime:/etc/localtime:ro'
+      - './run.sh:/opt/otrs/run.sh'
+      - './index.html:/var/www/html/index.html'
+  mariadb:
+    image: mariadb:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE
+    #env_file: .env
+    volumes:
+      #- './volumes/mysql:/var/lib/mysql'
+      - '/etc/localtime:/etc/localtime:ro'
